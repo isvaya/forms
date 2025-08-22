@@ -7,7 +7,6 @@ export default function App() {
   const [modalType, setmodalType] = useState<null | 'uncontrolled' | 'hook'>(
     null
   );
-
   const closeModal = () => setmodalType(null);
 
   return (

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { validatePasswordStrength } from '../utils/passwordStrength';
+import { useFormStore } from '../store/useFormStore';
 
 type Props = {
   onClose: () => void;
@@ -21,6 +22,8 @@ export default function UncontrolledForm({ onClose }: Props) {
   const countryRef = useRef<HTMLInputElement>(null);
 
   const [errors, setErrors] = useState<Errors>({});
+
+  const addSubmission = useFormStore((state) => state.addSubmission);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,9 +91,10 @@ export default function UncontrolledForm({ onClose }: Props) {
           password,
           gender,
           terms,
-          image: reader.result,
+          image: reader.result as string,
           country,
         };
+        addSubmission(formData);
         console.log('Form submitted:', formData);
         alert('Form sent successfully!');
         onClose();
