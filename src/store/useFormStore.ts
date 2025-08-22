@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 export type FormData = {
   name: string;
@@ -16,10 +17,12 @@ type FormState = {
   addSubmission: (data: FormData) => void;
 };
 
-export const useFormStore = create<FormState>((set) => ({
-  submissions: [],
-  addSubmission: (data) =>
-    set((state) => ({
-      submissions: [...state.submissions, data],
-    })),
-}));
+export const useFormStore = create<FormState>()(
+  devtools((set) => ({
+    submissions: [],
+    addSubmission: (data) =>
+      set((state) => ({
+        submissions: [...state.submissions, data],
+      })),
+  }))
+);
