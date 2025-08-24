@@ -1,0 +1,19 @@
+.submissions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.card {
+  border: 2px solid transparent;
+  padding: 12px;
+  border-radius: 8px;
+  width: 220px;
+  transition: border-color 0.5s, background-color 0.5s;
+  background-color: rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card.highlight {
+  border-color: limegreen;
+}

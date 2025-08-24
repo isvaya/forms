@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 export type FormData = {
+  id: string;
   name: string;
   age: number;
   email: string;
@@ -14,17 +15,24 @@ export type FormData = {
 
 type FormState = {
   submissions: FormData[];
-  addSubmission: (data: FormData) => void;
+  highlightedId: string | null;
+  addSubmission: (data: Omit<FormData, 'id'>) => void;
   countries: string[];
 };
 
 export const useFormStore = create<FormState>()(
   devtools((set) => ({
     submissions: [],
-    addSubmission: (data) =>
+    highlightedId: null,
+    addSubmission: (data) => {
+      const id = crypto.randomUUID();
       set((state) => ({
-        submissions: [...state.submissions, data],
-      })),
+        submissions: [...state.submissions, { ...data, id }],
+        highlightedId: id,
+      }));
+
+      setTimeout(() => set({ highlightedId: null }), 2000);
+    },
     countries: [
       'United States',
       'Canada',

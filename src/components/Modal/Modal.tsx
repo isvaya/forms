@@ -1,3 +1,4 @@
+import './Modal.css';
 import ReactDOM from 'react-dom';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useRef } from 'react';

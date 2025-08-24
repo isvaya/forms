@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
-import { validatePasswordStrength } from '../utils/validatePasswordStrength';
-import { useFormStore } from '../store/useFormStore';
-import PasswordStrength from '../utils/passwordStrength';
-import Autocomplete from './AutocompleteCountry';
+import { validatePasswordStrength } from '../../utils/validatePasswordStrength';
+import { useFormStore } from '../../store/useFormStore';
+import PasswordStrength from '../../utils/passwordStrength';
+import Autocomplete from '../Country/AutocompleteCountry';
 
 type Props = {
   onClose: () => void;
@@ -103,7 +103,6 @@ export default function UncontrolledForm({ onClose }: Props) {
         };
         addSubmission(formData);
         console.log('Form submitted:', formData);
-        alert('Form sent successfully!');
         onClose();
       };
       if (image) reader.readAsDataURL(image);
@@ -113,77 +112,94 @@ export default function UncontrolledForm({ onClose }: Props) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-row">
-        <label htmlFor="name">Name:</label>
-        <input id="name" ref={nameRef} />
+        <div className="form-field">
+          <label htmlFor="name">Name:</label>
+          <input id="name" ref={nameRef} />
+        </div>
         {errors.name && <p className="error">{errors.name}</p>}
       </div>
       <div className="form-row">
-        <label htmlFor="age">Age:</label>
-        <input id="age" type="number" ref={ageRef} />
+        <div className="form-field">
+          <label htmlFor="age">Age:</label>
+          <input id="age" type="number" ref={ageRef} />
+        </div>
         {errors.age && <p className="error">{errors.age}</p>}
       </div>
       <div className="form-row">
-        <label htmlFor="email">Email:</label>
-        <input id="email" type="email" ref={emailRef} />
+        <div className="form-field">
+          <label htmlFor="email">Email:</label>
+          <input id="email" type="email" ref={emailRef} />
+        </div>
         {errors.email && <p className="error">{errors.email}</p>}
       </div>
-      <div className="form-row">
+      <div className="form-row password-container">
         <div className="password-row">
-          <label htmlFor="password">Password:</label>
-          <input
-            id="password"
-            type="password"
-            ref={passwordRef}
-            onChange={(e) => setPasswordValue(e.target.value)}
-          />
+          <div className="form-field">
+            <label htmlFor="password">Password:</label>
+            <input
+              id="password"
+              type="password"
+              ref={passwordRef}
+              onChange={(e) => setPasswordValue(e.target.value)}
+            />
+          </div>
           <PasswordStrength password={passwordValue} />
         </div>
         <div className="password-row">
-          <label htmlFor="confirm-password">Confirm password:</label>
-          <input
-            id="confirm-password"
-            type="password"
-            ref={confirmPasswordRef}
-          />
+          <div className="form-field">
+            <label htmlFor="confirm-password">Confirm password:</label>
+            <input
+              id="confirm-password"
+              type="password"
+              ref={confirmPasswordRef}
+            />
+          </div>
           {errors.password && <p className="error">{errors.password}</p>}
         </div>
       </div>
       <div className="form-row">
-        <label htmlFor="gender">Gender:</label>
-        <select id="gender" ref={genderRef}>
-          <option value="">Select...</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
+        <div className="form-field">
+          <label htmlFor="gender">Gender:</label>
+          <select id="gender" ref={genderRef}>
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
         {errors.gender && <p className="error">{errors.gender}</p>}
       </div>
       <div className="form-row">
-        <label htmlFor="terms">Accept Terms:</label>
-        <input id="terms" type="checkbox" ref={termsRef} />
+        <div className="form-field">
+          <label htmlFor="terms">Accept Terms:</label>
+          <input id="terms" type="checkbox" ref={termsRef} />
+        </div>
         {errors.terms && <p className="error">{errors.terms}</p>}
       </div>
       <div className="form-row">
-        <label htmlFor="image-upload">Upload image:</label>
-        <input
-          id="image-upload"
-          type="file"
-          accept="image/png, image/jpeg"
-          ref={imageRef}
-        />
+        <div className="form-field">
+          <label htmlFor="image-upload">Upload image:</label>
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/png, image/jpeg"
+            ref={imageRef}
+          />
+        </div>
         {errors.image && <p className="error">{errors.image}</p>}
       </div>
       <div className="form-row">
-        <label htmlFor="country">Country:</label>
-        <Autocomplete
-          value={countryValue}
-          onChange={(val) => {
-            setCountryValue(val);
-            if (countryRef.current) {
-              countryRef.current.value = val;
-            }
-          }}
-          options={countries}
-        />
+        <div className="form-field">
+          <label htmlFor="country">Country:</label>
+          <Autocomplete
+            value={countryValue}
+            onChange={(val) => {
+              setCountryValue(val);
+            }}
+            options={countries}
+          />
+          <input type="hidden" ref={countryRef} value={countryValue} />
+        </div>
+
         {errors.country && <p className="error">{errors.country}</p>}
       </div>
       <button type="submit">Submit</button>
