@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
-import { validatePasswordStrength } from '../utils/passwordStrength';
+import { validatePasswordStrength } from '../utils/validatePasswordStrength';
 import { useFormStore } from '../store/useFormStore';
+import PasswordStrength from '../utils/passwordStrength';
 
 type Props = {
   onClose: () => void;
@@ -22,6 +23,8 @@ export default function UncontrolledForm({ onClose }: Props) {
   const countryRef = useRef<HTMLInputElement>(null);
 
   const [errors, setErrors] = useState<Errors>({});
+
+  const [passwordValue, setPasswordValue] = useState('');
 
   const addSubmission = useFormStore((state) => state.addSubmission);
 
@@ -123,7 +126,13 @@ export default function UncontrolledForm({ onClose }: Props) {
       <div className="form-row">
         <div className="password-row">
           <label htmlFor="password">Password:</label>
-          <input id="password" type="password" ref={passwordRef} />
+          <input
+            id="password"
+            type="password"
+            ref={passwordRef}
+            onChange={(e) => setPasswordValue(e.target.value)}
+          />
+          <PasswordStrength password={passwordValue} />
         </div>
         <div className="password-row">
           <label htmlFor="confirm-password">Confirm password:</label>

@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { validatePasswordStrength } from '../utils/validatePasswordStrength';
 
 export type FormValues = {
   name: string;
@@ -27,6 +28,10 @@ export const formSchema: yup.ObjectSchema<FormValues> = yup.object({
     .string()
     .required('Enter password')
     .min(8, 'Minimum 8 characters')
+    .test('strength', 'Password is too weak', (value) => {
+      if (!value) return false;
+      return validatePasswordStrength(value).length === 0;
+    })
     .matches(/[0-9]/, 'There must be a number')
     .matches(/[A-Z]/, 'Must be capitalized')
     .matches(/[a-z]/, 'Must be a lowercase letter')

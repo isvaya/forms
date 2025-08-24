@@ -1,9 +1,11 @@
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { formSchema } from '../validation/formYup';
 import type { FormValues } from '../validation/formYup';
 import { useFormStore } from '../store/useFormStore';
 import type { FormData } from '../store/useFormStore';
+import { getPasswordStrength } from '../utils/validatePasswordStrength';
+import PasswordStrength from '../utils/passwordStrength';
 
 type Props = {
   onClose: () => void;
@@ -15,11 +17,15 @@ export default function HookForm({ onClose }: Props) {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isValid },
   } = useForm<FormValues>({
     resolver: yupResolver(formSchema),
     mode: 'onChange',
   });
+
+  const password = useWatch({ control, name: 'password' });
+  const strength = getPasswordStrength(password || '');
 
   const onSubmit = (values: FormValues) => {
     const file = values.image?.[0];
@@ -72,6 +78,8 @@ export default function HookForm({ onClose }: Props) {
         <label htmlFor="password">Password:</label>
         <input id="password" type="password" {...register('password')} />
         {errors.password && <p className="error">{errors.password.message}</p>}
+        <PasswordStrength password={password || ''} />
+        <p className={`strength strength-${strength}`}>{strength}</p>
       </div>
 
       <div className="form-row">

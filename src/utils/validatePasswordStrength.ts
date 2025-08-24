@@ -7,3 +7,12 @@ export const validatePasswordStrength = (password: string) => {
   ];
   return rules.filter((r) => !r.regex.test(password)).map((r) => r.message);
 };
+
+export type PasswordStrength = 'weak' | 'medium' | 'strong';
+
+export const getPasswordStrength = (password: string): PasswordStrength => {
+  const missing = validatePasswordStrength(password).length;
+  if (password.length < 8 || missing >= 3) return 'weak';
+  if (missing === 1 || missing === 2) return 'medium';
+  return 'strong';
+};
