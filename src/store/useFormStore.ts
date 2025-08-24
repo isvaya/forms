@@ -8,8 +8,8 @@ export type FormData = {
   password: string;
   gender: string;
   terms: boolean;
-  image?: string;
   country: string;
+  image?: string;
 };
 
 type FormState = {
