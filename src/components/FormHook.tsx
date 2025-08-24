@@ -6,6 +6,8 @@ import { useFormStore } from '../store/useFormStore';
 import type { FormData } from '../store/useFormStore';
 import { getPasswordStrength } from '../utils/validatePasswordStrength';
 import PasswordStrength from '../utils/passwordStrength';
+import Autocomplete from './AutocompleteCountry';
+import { Controller } from 'react-hook-form';
 
 type Props = {
   onClose: () => void;
@@ -53,6 +55,8 @@ export default function HookForm({ onClose }: Props) {
       saveData();
     }
   };
+
+  const countries = useFormStore((s) => s.countries);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -125,7 +129,17 @@ export default function HookForm({ onClose }: Props) {
 
       <div className="form-row">
         <label htmlFor="country">Country:</label>
-        <input id="country" type="text" {...register('country')} />
+        <Controller
+          control={control}
+          name="country"
+          render={({ field }) => (
+            <Autocomplete
+              value={field.value}
+              onChange={field.onChange}
+              options={countries}
+            />
+          )}
+        />
         {errors.country && <p className="error">{errors.country.message}</p>}
       </div>
 

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { validatePasswordStrength } from '../utils/validatePasswordStrength';
 import { useFormStore } from '../store/useFormStore';
 import PasswordStrength from '../utils/passwordStrength';
+import Autocomplete from './AutocompleteCountry';
 
 type Props = {
   onClose: () => void;
@@ -27,6 +28,9 @@ export default function UncontrolledForm({ onClose }: Props) {
   const [passwordValue, setPasswordValue] = useState('');
 
   const addSubmission = useFormStore((state) => state.addSubmission);
+
+  const countries = useFormStore((s) => s.countries);
+  const [countryValue, setCountryValue] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +174,16 @@ export default function UncontrolledForm({ onClose }: Props) {
       </div>
       <div className="form-row">
         <label htmlFor="country">Country:</label>
-        <input id="country" type="text" ref={countryRef} />
+        <Autocomplete
+          value={countryValue}
+          onChange={(val) => {
+            setCountryValue(val);
+            if (countryRef.current) {
+              countryRef.current.value = val;
+            }
+          }}
+          options={countries}
+        />
         {errors.country && <p className="error">{errors.country}</p>}
       </div>
       <button type="submit">Submit</button>

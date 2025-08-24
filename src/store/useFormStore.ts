@@ -15,6 +15,7 @@ export type FormData = {
 type FormState = {
   submissions: FormData[];
   addSubmission: (data: FormData) => void;
+  countries: string[];
 };
 
 export const useFormStore = create<FormState>()(
@@ -24,5 +25,22 @@ export const useFormStore = create<FormState>()(
       set((state) => ({
         submissions: [...state.submissions, data],
       })),
+    countries: [
+      'United States',
+      'Canada',
+      'United Kingdom',
+      'Germany',
+      'France',
+      'Spain',
+      'Italy',
+      'Russia',
+      'China',
+      'Japan',
+      'Uzbekistan',
+      'Kazakhstan',
+      'India',
+      'Australia',
+      'Brazil',
+    ],
   }))
 );
