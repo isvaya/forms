@@ -49,7 +49,7 @@ const Modal = ({
         </button>
         {children}
       </div>
-      <div className="modal-overlay" onClick={onClose} />
+      <div className="modal-overlay" data-testid="overlay" onClick={onClose} />
     </div>,
     document.body
   );

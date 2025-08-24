@@ -28,18 +28,20 @@ export const formSchema: yup.ObjectSchema<FormValues> = yup.object({
     .string()
     .required('Enter password')
     .min(8, 'Minimum 8 characters')
-    .test('strength', 'Password is too weak', (value) => {
-      if (!value) return false;
-      return validatePasswordStrength(value).length === 0;
-    })
     .matches(/[0-9]/, 'There must be a number')
     .matches(/[A-Z]/, 'Must be capitalized')
     .matches(/[a-z]/, 'Must be a lowercase letter')
-    .matches(/[^a-zA-Z0-9]/, 'There must be a special character'),
+    .matches(/[^a-zA-Z0-9]/, 'There must be a special character')
+    .test('strength', 'Password is too weak', (value) => {
+      if (!value) return false;
+      return validatePasswordStrength(value).length === 0;
+    }),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Repeat password'),
+    .required('Repeat password')
+    .test('passwords-match', 'Passwords must match', function (value) {
+      return value === this.parent.password;
+    }),
   gender: yup.string().required('Select gender'),
   terms: yup
     .boolean()

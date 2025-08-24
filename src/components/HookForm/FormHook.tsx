@@ -151,6 +151,7 @@ export default function HookForm({ onClose }: Props) {
             name="country"
             render={({ field }) => (
               <Autocomplete
+                id="country"
                 value={field.value}
                 onChange={field.onChange}
                 options={countries}

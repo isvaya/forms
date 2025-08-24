@@ -1,12 +1,13 @@
 import { useState } from 'react';
 
 type Props = {
+  id?: string;
   value?: string;
   onChange: (value: string) => void;
   options: string[];
 };
 
-export default function Autocomplete({ value, onChange, options }: Props) {
+export default function Autocomplete({ id, value, onChange, options }: Props) {
   const [showList, setShowList] = useState(false);
 
   const safeValue = value || '';
@@ -18,6 +19,7 @@ export default function Autocomplete({ value, onChange, options }: Props) {
   return (
     <div style={{ position: 'relative' }}>
       <input
+        id={id}
         value={safeValue}
         onChange={(e) => {
           onChange(e.target.value);
@@ -27,6 +29,7 @@ export default function Autocomplete({ value, onChange, options }: Props) {
       />
       {showList && filtered.length > 0 && (
         <ul
+          role="listbox"
           style={{
             position: 'absolute',
             top: '100%',
@@ -42,6 +45,7 @@ export default function Autocomplete({ value, onChange, options }: Props) {
         >
           {filtered.map((c) => (
             <li
+              role="option"
               key={c}
               style={{ padding: '4px', cursor: 'pointer' }}
               onClick={() => {
