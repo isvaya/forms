@@ -12,7 +12,7 @@
 
 .modal-content {
   position: relative;
-  background: #222;
+  background: #d2d1d1;
   padding: 20px;
   border-radius: 10px;
   width: 500px;
@@ -47,7 +47,7 @@ form {
   padding: 30px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 25px;
 }
 
 .error {
