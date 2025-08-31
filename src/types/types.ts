@@ -12,9 +12,12 @@ export type YearData = {
 
 export type CountryData = {
   iso_code?: string;
+  region?: string;
   data: YearData[];
 };
 
 export type CO2Data = {
   [country: string]: CountryData;
 };
+
+export type SortOption = 'name-asc' | 'name-desc' | 'population';
