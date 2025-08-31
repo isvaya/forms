@@ -1,8 +1,68 @@
 import './CountryList.css';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useCO2Data } from '../../data/useC02Data';
 import type { CO2Data, YearData, SortOption } from '../../types/types';
 import { ColumnSelectorModal } from '../Modal/Modal';
+import type { CountryData } from '../../types/types';
+import React from 'react';
+
+const CountryRow = React.memo(function CountryRow({
+  name,
+  info,
+  year,
+  highlightedCells,
+  extraColumns,
+}: {
+  name: string;
+  info: CountryData;
+  year: number | 'latest';
+  highlightedCells: Record<string, (keyof YearData)[]>;
+  extraColumns: (keyof YearData)[];
+}) {
+  const currentYearData =
+    year === 'latest'
+      ? info.data.at(-1)
+      : info.data.find((d: YearData) => d.year === year);
+
+  return (
+    <tr>
+      <td>{name}</td>
+      <td>{info.iso_code ?? 'N/A'}</td>
+      <td
+        className={highlightedCells[name]?.includes('year') ? 'highlight' : ''}
+      >
+        {currentYearData?.year ?? 'N/A'}
+      </td>
+      <td
+        className={
+          highlightedCells[name]?.includes('population') ? 'highlight' : ''
+        }
+      >
+        {currentYearData?.population ?? 'N/A'}
+      </td>
+      <td
+        className={highlightedCells[name]?.includes('co2') ? 'highlight' : ''}
+      >
+        {currentYearData?.co2 ?? 'N/A'}
+      </td>
+      <td
+        className={
+          highlightedCells[name]?.includes('co2_per_capita') ? 'highlight' : ''
+        }
+      >
+        {currentYearData?.co2_per_capita ?? 'N/A'}
+      </td>
+      {extraColumns.map((col) => (
+        <td
+          key={col}
+          className={highlightedCells[name]?.includes(col) ? 'highlight' : ''}
+        >
+          {currentYearData?.[col] ?? 'N/A'}
+        </td>
+      ))}
+    </tr>
+  );
+});
 
 export function CountriesList() {
   const data = useCO2Data() as CO2Data;
@@ -13,7 +73,6 @@ export function CountriesList() {
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [extraColumns, setExtraColumns] = useState<(keyof YearData)[]>([]);
-
   const [highlightedCells, setHighlightedCells] = useState<
     Record<string, (keyof YearData)[]>
   >({});
@@ -26,63 +85,21 @@ export function CountriesList() {
     'nitrous_oxide',
   ];
 
-  const allYears = countries[0]?.[1].data.map((d) => d.year).reverse() ?? [];
+  const allYears = useMemo(
+    () => countries[0]?.[1].data.map((d) => d.year).reverse() ?? [],
+    [countries]
+  );
 
-  const handleYearChange = (newYear: number | 'latest') => {
-    const prev =
-      year === 'latest'
-        ? (countries[0]?.[1].data.at(-1)?.year ?? null)
-        : (year as number);
+  const filteredCountries = useMemo(() => {
+    let result = countries;
 
-    setYear(newYear);
+    if (search) {
+      result = result.filter(([name]) =>
+        name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
-    const newHighlights: Record<string, (keyof YearData)[]> = {};
-
-    countries.forEach(([name, info]) => {
-      const currentYearData =
-        newYear === 'latest'
-          ? info.data.at(-1)
-          : info.data.find((d) => d.year === newYear);
-
-      const prevYearData =
-        prev === null ? undefined : info.data.find((d) => d.year === prev);
-
-      if (!currentYearData || !prevYearData) return;
-
-      const changed: (keyof YearData)[] = [];
-      (
-        [
-          'year',
-          'population',
-          'co2',
-          'co2_per_capita',
-          ...extraColumns,
-        ] as (keyof YearData)[]
-      ).forEach((field) => {
-        if (currentYearData[field] !== prevYearData[field]) {
-          changed.push(field);
-        }
-      });
-
-      if (changed.length > 0) {
-        newHighlights[name] = changed;
-      }
-    });
-
-    setHighlightedCells(newHighlights);
-
-    setTimeout(() => setHighlightedCells({}), 1000);
-  };
-
-  let filteredCountries = countries;
-  if (search) {
-    filteredCountries = filteredCountries.filter(([name]) =>
-      name.toLowerCase().includes(search.toLowerCase())
-    );
-  }
-
-  filteredCountries = [...filteredCountries].sort(
-    ([nameA, infoA], [nameB, infoB]) => {
+    result = [...result].sort(([nameA, infoA], [nameB, infoB]) => {
       if (sortBy === 'name-asc') return nameA.localeCompare(nameB);
       if (sortBy === 'name-desc') return nameB.localeCompare(nameA);
       if (sortBy === 'population') {
@@ -97,11 +114,63 @@ export function CountriesList() {
         return (yearB?.population ?? 0) - (yearA?.population ?? 0);
       }
       return 0;
-    }
+    });
+
+    return result;
+  }, [countries, search, sortBy, year]);
+
+  const handleYearChange = useCallback(
+    (newYear: number | 'latest') => {
+      const prev =
+        year === 'latest'
+          ? (countries[0]?.[1].data.at(-1)?.year ?? null)
+          : (year as number);
+
+      setYear(newYear);
+
+      const newHighlights: Record<string, (keyof YearData)[]> = {};
+      countries.forEach(([name, info]) => {
+        const currentYearData =
+          newYear === 'latest'
+            ? info.data.at(-1)
+            : info.data.find((d: YearData) => d.year === newYear);
+
+        const prevYearData =
+          prev === null
+            ? undefined
+            : info.data.find((d: YearData) => d.year === prev);
+
+        if (!currentYearData || !prevYearData) return;
+
+        const changed: (keyof YearData)[] = [];
+        (
+          [
+            'year',
+            'population',
+            'co2',
+            'co2_per_capita',
+            ...extraColumns,
+          ] as (keyof YearData)[]
+        ).forEach((field) => {
+          if (currentYearData[field] !== prevYearData[field]) {
+            changed.push(field);
+          }
+        });
+
+        if (changed.length > 0) {
+          newHighlights[name] = changed;
+        }
+      });
+
+      setHighlightedCells(newHighlights);
+      setTimeout(() => setHighlightedCells({}), 1000);
+    },
+    [year, countries, extraColumns]
   );
 
   return (
     <div>
+      {/* Панель */}
       <div style={{ marginBottom: '16px' }}>
         <label>
           Year:
@@ -161,6 +230,7 @@ export function CountriesList() {
         availableColumns={availableColumns}
       />
 
+      {/* Таблица */}
       <table>
         <thead>
           <tr>
@@ -176,61 +246,16 @@ export function CountriesList() {
           </tr>
         </thead>
         <tbody>
-          {filteredCountries.map(([name, info]) => {
-            const currentYearData =
-              year === 'latest'
-                ? info.data.at(-1)
-                : info.data.find((d) => d.year === year);
-
-            return (
-              <tr key={name}>
-                <td>{name}</td>
-                <td>{info.iso_code ?? 'N/A'}</td>
-                <td
-                  className={
-                    highlightedCells[name]?.includes('year') ? 'highlight' : ''
-                  }
-                >
-                  {currentYearData?.year ?? 'N/A'}
-                </td>
-                <td
-                  className={
-                    highlightedCells[name]?.includes('population')
-                      ? 'highlight'
-                      : ''
-                  }
-                >
-                  {currentYearData?.population ?? 'N/A'}
-                </td>
-                <td
-                  className={
-                    highlightedCells[name]?.includes('co2') ? 'highlight' : ''
-                  }
-                >
-                  {currentYearData?.co2 ?? 'N/A'}
-                </td>
-                <td
-                  className={
-                    highlightedCells[name]?.includes('co2_per_capita')
-                      ? 'highlight'
-                      : ''
-                  }
-                >
-                  {currentYearData?.co2_per_capita ?? 'N/A'}
-                </td>
-                {extraColumns.map((col) => (
-                  <td
-                    key={col}
-                    className={
-                      highlightedCells[name]?.includes(col) ? 'highlight' : ''
-                    }
-                  >
-                    {currentYearData?.[col] ?? 'N/A'}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
+          {filteredCountries.map(([name, info]) => (
+            <CountryRow
+              key={name}
+              name={name}
+              info={info}
+              year={year}
+              highlightedCells={highlightedCells}
+              extraColumns={extraColumns}
+            />
+          ))}
         </tbody>
       </table>
     </div>
